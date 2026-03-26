@@ -1,0 +1,381 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Prediction | TradeAlchemy</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <style>
+        :root { --bg-dark: #0e0e0e; --bg-card: #161616; --border-color: #2a2a2a; --text-main: #ffffff; --text-muted: #a0a0a0; --success: #22c55e; --danger: #ef4444; --accent-purple: #A855F7; --accent-gold: #FFD700; }
+
+        /* FIX: Removed 'display: none' so the custom tooltip can show */
+        .apexcharts-tooltip { background: transparent !important; border: none !important; box-shadow: none !important; padding: 0 !important; }
+
+        .loading-zone { text-align: center; padding: 40px 20px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid var(--border-color); margin-bottom: 30px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 200px; }
+        .pulse { animation: pulse-animation 1.5s infinite; color: var(--accent-purple); font-size: 1.2rem; font-weight: 600; margin-bottom: 10px; }
+        .pulse-gold { color: var(--accent-gold); }
+        .pulse-blue { color: #3b82f6; }
+        @keyframes pulse-animation { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.98); } 100% { opacity: 1; transform: scale(1); } }
+        .content-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; margin-bottom: 30px; }
+        .stock-header-section { margin-bottom: 30px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 25px; display: none; }
+        .header-title-row { display: flex; align-items: baseline; gap: 12px; }
+        .header-name { font-size: 2rem; font-weight: 700; color: white; letter-spacing: -0.5px; }
+        .header-symbol { font-size: 1.5rem; color: var(--text-muted); font-weight: 600; }
+        .header-price-row { display: flex; align-items: baseline; gap: 15px; margin-top: 10px; }
+        .header-price { font-size: 2.8rem; font-weight: 800; line-height: 1; letter-spacing: -1px; }
+        .header-change { font-size: 1.4rem; font-weight: 600; }
+        .chart-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 15px; }
+        .hover-legend { font-family: monospace; font-size: 0.9rem; color: var(--text-muted); min-height: 20px; }
+        .chart-controls button { background: transparent; border: none; color: var(--text-muted); padding: 4px 10px; font-size: 0.85rem; font-weight: 600; cursor: pointer; margin-left: 4px; border-bottom: 2px solid transparent; border-radius: 0; }
+        .chart-controls button:hover { color: var(--text-main); }
+        .chart-controls button.active { color: white; border-bottom-color: white; background: transparent; }
+        .ai-result-section { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; margin-bottom: 30px; display: none; }
+        @media (max-width: 900px) { .ai-result-section { grid-template-columns: 1fr; } }
+        .result-card { background: var(--bg-card); border: 1px solid var(--border-color); padding: 25px; border-radius: 12px; border-left: 4px solid var(--accent-gold); height: 100%; }
+        .ai-card { border-left-color: var(--accent-purple); }
+        .prediction-score { font-size: 2.2rem; font-weight: 700; margin: 10px 0; }
+        .metric-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; margin-top: 20px; }
+        .metric-box { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); }
+        .metric-label { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .metric-value { font-size: 1.1rem; font-weight: 700; color: #fff; margin-top: 5px; }
+        .section-title { font-size: 1.2rem; font-weight: 600; margin-bottom: 20px; color: var(--text-main); border-left: 3px solid #666; padding-left: 12px; }
+        .data-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .data-item { border-bottom: 1px solid #222; padding-bottom: 8px; }
+        .data-label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; }
+        .data-value { font-size: 0.95rem; font-weight: 600; color: #e0e0e0; }
+        .text-green { color: #22c55e; }
+        .text-red { color: #ef4444; }
+
+        /* CUSTOM TOOLTIP STYLES */
+        .custom-tooltip-box { padding: 12px 16px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; backdrop-filter: blur(8px); pointer-events: none; z-index: 1000; }
+        .tooltip-theme-green { border: 1px solid #22c55e; background: rgba(34, 197, 94, 0.15); color: #ffffff; box-shadow: 0 4px 20px rgba(34, 197, 94, 0.2); }
+        .tooltip-theme-red { border: 1px solid #ef4444; background: rgba(239, 68, 68, 0.15); color: #ffffff; box-shadow: 0 4px 20px rgba(239, 68, 68, 0.2); }
+        .tooltip-row { display: flex; justify-content: space-between; gap: 20px; margin-bottom: 4px; }
+        .tooltip-label { color: rgba(255,255,255,0.6); font-weight: 500; font-size: 0.8rem; }
+        .tooltip-value { font-weight: 700; font-family: monospace; }
+        .tooltip-date { border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 8px; margin-bottom: 8px; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; color: rgba(255,255,255,0.9); }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="dashboard.html" class="logo-link">
+                <div class="logo"><img src="/static/images/logo.png" alt="Logo" class="logo-img"><span class="logo-text">TradeAlchemy</span></div>
+            </a>
+            <nav class="nav">
+                <a href="dashboard.html" class="nav-link active">Home</a>
+                <a href="watchlist.html" class="nav-link">Watchlist</a>
+            </nav>
+            <div class="header-actions">
+                <a href="account.html" class="account-link">
+                    <div class="account-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main" style="padding-top: 40px;">
+        <div class="content-container" style="max-width: 1400px; padding: 0 40px; margin: 0;">
+            <div id="loading-chart" class="loading-zone">
+                <div class="pulse pulse-blue">Fetching Price Action...</div>
+                <p style="color: var(--text-muted);">Retrieving 5-year historical data from Exchange</p>
+            </div>
+
+            <div id="stock-header" class="stock-header-section">
+                <div class="header-title-row">
+                    <span id="h-name" class="header-name">Loading...</span>
+                    <span id="h-ticker" class="header-symbol"></span>
+                </div>
+                <div class="header-price-row">
+                    <div id="h-price" class="header-price">--</div>
+                    <div id="h-change" class="header-change">--</div>
+                </div>
+            </div>
+
+            <section id="chart-section" class="content-card" style="display: none;">
+                <div class="chart-header-row">
+                    <div id="chart-legend" class="hover-legend" style="opacity: 0;"></div>
+                    <div class="chart-controls">
+                        <button onclick="updateChart('5d', this)">5D</button>
+                        <button onclick="updateChart('1m', this)">1M</button>
+                        <button onclick="updateChart('6m', this)">6M</button>
+                        <button onclick="updateChart('1y', this)" class="active">1Y</button>
+                        <button onclick="updateChart('5y', this)">5Y</button>
+                        <span style="border-left: 1px solid #333; margin: 0 8px;"></span>
+                        <button onclick="setType('area', this)" class="active">Line</button>
+                        <button onclick="setType('candlestick', this)">Candle</button>
+                    </div>
+                </div>
+                <div id="mainChart" style="min-height: 500px;"></div>
+            </section>
+
+            <div id="loading-ai" class="loading-zone">
+                <div class="pulse">🧠 Training Neural Network...</div>
+                <p style="color: var(--text-muted);">Calculating regime-based volatility and optimizing LSTM weights.</p>
+            </div>
+
+            <div id="ai-result" class="ai-result-section">
+                <div class="result-card ai-card">
+                    <h3 style="color: var(--text-main); font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px;">AI Model Prediction</h3>
+                    <div class="prediction-score" id="pred-main">--</div>
+                    <p style="color: var(--text-muted); line-height: 1.6;" id="pred-desc">
+                        Calculating trajectory based on recent volume surges and volatility analysis.
+                    </p>
+                </div>
+                <div class="result-card">
+                    <h3 style="color: var(--text-main); font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px;">Model Diagnostics</h3>
+                    <div class="metric-grid">
+                        <div class="metric-box"><div class="metric-label">Market Regime</div><div class="metric-value" id="ai-regime">--</div></div>
+                        <div class="metric-box"><div class="metric-label">Test Accuracy</div><div class="metric-value" id="ai-accuracy">--</div></div>
+                        <div class="metric-box"><div class="metric-label">Volatility (ATR)</div><div class="metric-value" id="ai-atr">--</div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="loading-v7" class="loading-zone">
+                <div class="pulse pulse-gold">Aggregating Market Snapshot...</div>
+                <p style="color: var(--text-muted);">Compiling fundamentals and daily metrics</p>
+            </div>
+
+            <section id="v7-section" class="content-card" style="display: none;">
+                <h2 class="section-title">Market Snapshot</h2>
+                <div class="data-grid" id="v7-grid"></div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-wrapper">
+            <div class="footer-left">
+                <a href="dashboard.html" class="logo-link">
+                    <div class="logo"><img src="/static/images/logo.png" alt="Logo" class="logo-img"><span class="logo-text">TradeAlchemy</span></div>
+                </a>
+                <p class="footer-description">Semester 3 Project</p>
+            </div>
+            <div class="footer-right">
+                <div class="footer-col"><h4>Learn</h4><a href="stock_market.html">Stock Market</a><a href="ai_ml.html">AI ML</a></div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let fullChartData = [];
+        let chartInstance = null;
+        let currentType = 'area';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const ticker = urlParams.get('q');
+            if(ticker) {
+                document.getElementById('h-name').innerText = ticker.toUpperCase();
+                fetchMarketData(ticker, '5y');
+                fetchAIPrediction(ticker);
+            } else { window.location.href = 'dashboard.html'; }
+        });
+
+        async function fetchMarketData(ticker, period) {
+            try {
+                const response = await fetch(`/api/search_data?ticker=${ticker}&period=${period}`);
+                const data = await response.json();
+                if (data.success) {
+                    document.getElementById('loading-chart').style.display = 'none';
+                    document.getElementById('loading-v7').style.display = 'none';
+                    document.getElementById('stock-header').style.display = 'block';
+                    document.getElementById('chart-section').style.display = 'block';
+                    document.getElementById('v7-section').style.display = 'block';
+                    renderHeader(data.fundamentals.v7 || {}, ticker);
+                    fullChartData = data.chart_data;
+                    initChart(filterData(fullChartData, '1y'));
+                    renderV7Grid(data.fundamentals.v7 || {});
+                }
+            } catch (e) {
+                document.getElementById('loading-chart').innerHTML = `<p class="text-red">Failed to load Chart Data</p>`;
+                document.getElementById('loading-v7').innerHTML = `<p class="text-red">Failed to load Market Data</p>`;
+            }
+        }
+
+        async function fetchAIPrediction(ticker) {
+            try {
+                const response = await fetch(`/api/predict?ticker=${ticker}`);
+                const data = await response.json();
+                if (data.ticker && !data.error) {
+                    document.getElementById('loading-ai').style.display = 'none';
+                    document.getElementById('ai-result').style.display = 'grid';
+                    renderAIResults(data);
+                } else {
+                    const msg = data.error || data.message || "Analysis Failed";
+                    document.getElementById('loading-ai').innerHTML = `<p style="color:#ef4444">AI Analysis Failed: ${msg}</p>`;
+                }
+            } catch (e) { document.getElementById('loading-ai').innerHTML = `<p style="color:#ef4444">AI Connection Error</p>`; }
+        }
+
+        function renderHeader(v7, ticker) {
+            document.getElementById('h-name').innerText = v7.Name || ticker;
+            document.getElementById('h-ticker').innerText = `(${ticker})`;
+            const price = v7["Current Price"] || 0;
+            const change = price - (v7["Prev Close"] || price);
+            const pct = (change / (v7["Prev Close"] || 1)) * 100;
+            const pEl = document.getElementById('h-price');
+            const cEl = document.getElementById('h-change');
+            pEl.innerText = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            cEl.innerText = `${change > 0 ? '+' : ''}${change.toFixed(2)} (${pct.toFixed(2)}%)`;
+            const color = change >= 0 ? 'text-green' : 'text-red';
+            pEl.style.color = '#ffffff';
+            cEl.className = `header-change ${color}`;
+        }
+
+        function renderAIResults(data) {
+            const directionText = data.direction === 'UP' ? 'Bullish' : 'Bearish';
+            const colorClass = data.direction === 'UP' ? 'text-green' : 'text-red';
+            const confPercent = (data.confidence * 100).toFixed(1);
+            const scoreEl = document.getElementById('pred-main');
+            scoreEl.innerText = `${confPercent}% ${directionText}`;
+            scoreEl.className = `prediction-score ${colorClass}`;
+            document.getElementById('pred-desc').innerText = `Our LSTM model predicts a ${directionText.toLowerCase()} trend for ${data.ticker} over the next trading period.`;
+            document.getElementById('ai-regime').innerText = data.regime.toUpperCase();
+            document.getElementById('ai-accuracy').innerText = data.accuracy.toFixed(2) + '%';
+            document.getElementById('ai-atr').innerText = data.atr.toFixed(2);
+        }
+
+        function renderV7Grid(v7) {
+            const container = document.getElementById('v7-grid');
+            container.innerHTML = '';
+            const orderedKeys = [ "Open", "Prev Close", "Day High", "Day Low", "52W High", "52W Low", "50 Day Avg", "200 Day Avg", "Volume", "Avg Volume (10D)", "Avg Volume (3M)", "Market Cap", "Trailing PE", "Forward PE", "EPS (TTM)", "Price to Book" ];
+            orderedKeys.forEach(key => { if(v7[key] !== undefined) createGridItem(container, key, v7[key]); });
+        }
+
+        function createGridItem(container, label, value) {
+            let displayVal = value;
+            if(typeof value === 'number') {
+                if(label.includes('Cap') || label.includes('Volume') || label.includes('Cash')) displayVal = formatCompact(value);
+                else displayVal = value.toFixed(2);
+            }
+            container.innerHTML += `<div class="data-item"><span class="data-label">${label}</span><span class="data-value">${displayVal}</span></div>`;
+        }
+
+        function formatCompact(num) { return Intl.NumberFormat('en-US', { notation: "compact", maximumFractionDigits: 2 }).format(num); }
+
+        // --- ADDED DOWNSAMPLING TO PREVENT LAG ---
+        function downsampleData(data, type, maxPoints = 400) {
+            if (data.length <= maxPoints) return data;
+            const chunkSize = Math.ceil(data.length / maxPoints);
+            const result = [];
+            for (let i = 0; i < data.length; i += chunkSize) {
+                const chunk = data.slice(i, i + chunkSize);
+                const lastPoint = chunk[chunk.length - 1];
+                const isOHLC = Array.isArray(chunk[0].y);
+                if (type === 'candlestick' && isOHLC) {
+                    const open = chunk[0].y[0];
+                    const close = lastPoint.y[3];
+                    const high = Math.max(...chunk.map(d => d.y[1]));
+                    const low = Math.min(...chunk.map(d => d.y[2]));
+                    result.push({ x: lastPoint.x, y: [open, high, low, close] });
+                } else {
+                    const close = isOHLC ? lastPoint.y[3] : lastPoint.y;
+                    result.push({ x: lastPoint.x, y: isOHLC ? [close, close, close, close] : close });
+                }
+            }
+            return result;
+        }
+
+        function initChart(rawData) {
+            if(chartInstance) chartInstance.destroy();
+
+            // Downsample first
+            const data = downsampleData(rawData, currentType, 400);
+
+            let chartColor = '#22c55e';
+            if(data.length > 0) {
+                const first = data[0].y[3] || data[0].y;
+                const last = data[data.length - 1].y[3] || data[data.length - 1].y;
+                if(last < first) chartColor = '#ef4444';
+            }
+
+            const options = {
+                series: [{ name: 'Price', data: formatData(data) }],
+                chart: { type: currentType, height: 500, background: 'transparent', toolbar: { show: false }, animations: { enabled: false } },
+                theme: { mode: 'dark' },
+                stroke: { width: currentType === 'candlestick' ? 1 : 2, curve: 'straight', colors: currentType === 'candlestick' ? ['#22c55e', '#ef4444'] : [chartColor] },
+                dataLabels: { enabled: false },
+                plotOptions: { candlestick: { colors: { upward: '#22c55e', downward: '#ef4444' }, wick: { useFillColor: true } } },
+                fill: { type: currentType === 'candlestick' ? 'solid' : 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.1, stops: [0, 100], colorStops: currentType === 'candlestick' ? [] : [{ offset: 0, color: chartColor, opacity: 0.4 }, { offset: 100, color: chartColor, opacity: 0.05 }] } },
+                grid: { borderColor: '#222', xaxis: { lines: { show: false } } },
+                xaxis: { type: 'datetime', tooltip: { enabled: false }, axisBorder: { show: false }, axisTicks: { show: false }, labels: { style: { colors: '#666' } } },
+                yaxis: { show: false },
+                tooltip: {
+                    enabled: true,
+                    shared: false,
+                    followCursor: true,
+                    intersect: false,
+                    custom: function({series, seriesIndex, dataPointIndex, w}) {
+                        // Extract Date
+                        const dateVal = w.globals.seriesX[seriesIndex][dataPointIndex];
+                        const dateStr = new Date(dateVal).toLocaleDateString('en-US', { day:'numeric', month:'short', year:'numeric'});
+
+                        let html = '';
+
+                        if (currentType === 'candlestick') {
+                            // Extract OHLC
+                            const o = w.globals.seriesCandleO[seriesIndex][dataPointIndex];
+                            const h = w.globals.seriesCandleH[seriesIndex][dataPointIndex];
+                            const l = w.globals.seriesCandleL[seriesIndex][dataPointIndex];
+                            const c = w.globals.seriesCandleC[seriesIndex][dataPointIndex];
+
+                            const themeClass = (c >= o) ? 'tooltip-theme-green' : 'tooltip-theme-red';
+
+                            html = `<div class="custom-tooltip-box ${themeClass}">
+                                        <div class="tooltip-date">${dateStr}</div>
+                                        <div class="tooltip-row"><span class="tooltip-label">O</span><span class="tooltip-value">${o.toFixed(2)}</span></div>
+                                        <div class="tooltip-row"><span class="tooltip-label">H</span><span class="tooltip-value">${h.toFixed(2)}</span></div>
+                                        <div class="tooltip-row"><span class="tooltip-label">L</span><span class="tooltip-value">${l.toFixed(2)}</span></div>
+                                        <div class="tooltip-row"><span class="tooltip-label">C</span><span class="tooltip-value">${c.toFixed(2)}</span></div>
+                                    </div>`;
+                        } else {
+                            // Extract Price
+                            const val = w.globals.series[seriesIndex][dataPointIndex];
+                            const themeClass = (chartColor === '#22c55e') ? 'tooltip-theme-green' : 'tooltip-theme-red';
+
+                            html = `<div class="custom-tooltip-box ${themeClass}">
+                                        <div class="tooltip-date">${dateStr}</div>
+                                        <div class="tooltip-row"><span class="tooltip-label">Price</span><span class="tooltip-value">${val.toFixed(2)}</span></div>
+                                    </div>`;
+                        }
+                        return html;
+                    }
+                }
+            };
+            chartInstance = new ApexCharts(document.querySelector("#mainChart"), options);
+            chartInstance.render();
+        }
+
+        function formatData(data) { return data.map(d => ({ x: d.x, y: d.y })); }
+
+        function filterData(data, range) {
+            const now = new Date().getTime();
+            let days = 1825;
+            if(range === '5d') days = 5; if(range === '1m') days = 30; if(range === '6m') days = 180; if(range === '1y') days = 365;
+            const cutoff = now - (days * 24 * 60 * 60 * 1000);
+            return data.filter(d => d.x >= cutoff);
+        }
+
+        function updateChart(range, btn) {
+            btn.parentNode.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            initChart(filterData(fullChartData, range));
+        }
+
+        function setType(type, btn) {
+            currentType = type;
+            btn.parentNode.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const activeRangeBtn = document.querySelector('.chart-controls button.active');
+            let range = activeRangeBtn ? activeRangeBtn.innerText.toLowerCase() : '1y';
+            initChart(filterData(fullChartData, range));
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Account | TradeAlchemy</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .account-grid { display: grid; grid-template-columns: 300px 1fr; gap: 30px; max-width: 1100px; width: 100%; margin: 0 auto; }
+        .profile-sidebar { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 20px; padding: 30px; text-align: center; height: fit-content; }
+        .profile-avatar-large { width: 120px; height: 120px; border-radius: 50%; border: 3px solid var(--accent-purple); padding: 4px; object-fit: cover; margin-bottom: 20px; }
+        .user-tag { background: rgba(168, 85, 247, 0.2); color: var(--accent-purple); padding: 4px 12px; border-radius: 99px; font-size: 0.8rem; font-weight: 600; display: inline-block; margin-bottom: 15px; }
+        .account-section { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 30px; margin-bottom: 25px; }
+        .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        .section-title { font-size: 1.2rem; font-weight: 600; color: var(--text-main); }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; color: var(--text-muted); font-size: 0.9rem; margin-bottom: 8px; }
+        .form-input { width: 100%; background: #121212; border: 1px solid #333; padding: 12px; border-radius: 8px; color: white; font-family: var(--font-primary); transition: all 0.2s; }
+        .form-input:disabled { opacity: 0.7; cursor: not-allowed; }
+        .form-input:focus { border-color: var(--accent-purple); outline: none; }
+        .watchlist-preview { display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.05); padding: 20px; border-radius: 12px; }
+
+        /* OTP Styles */
+        .otp-container { display: flex; gap: 12px; margin-top: 15px; margin-bottom: 20px; }
+        .otp-box { width: 45px; height: 50px; background: #1a1a1a; border: 1px solid #333; border-radius: 8px; color: white; font-size: 1.2rem; font-weight: 700; text-align: center; transition: all 0.2s; }
+        .otp-box:focus { border-color: var(--accent-purple); background: #222; outline: none; box-shadow: 0 0 10px rgba(168, 85, 247, 0.2); }
+        .slide-down { animation: slideDown 0.4s ease forwards; }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 800px) { .account-grid { grid-template-columns: 1fr; } .form-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="dashboard.html" class="logo-link">
+                <div class="logo"><img src="/static/images/logo.png" alt="Logo" class="logo-img"><span class="logo-text">TradeAlchemy</span></div>
+            </a>
+            <nav class="nav">
+                <a href="dashboard.html" class="nav-link">Home</a>
+                <a href="watchlist.html" class="nav-link">Watchlist</a>
+            </nav>
+            <div class="header-actions">
+                <div class="account-icon" style="background: var(--accent-purple); color: white;">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="main" style="padding-top: 50px;">
+        <div class="account-grid">
+            <div class="profile-sidebar">
+                <img src="https://ui-avatars.com/api/?name=User&background=A855F7&color=fff" alt="Profile" class="profile-avatar-large">
+                <div class="user-tag">Verified Member</div>
+                <h2 id="display-name" style="margin-bottom: 5px;">Loading...</h2>
+                <p id="display-email" style="color: var(--text-muted); margin-bottom: 30px;">...</p>
+                <button id="logout-btn" class="ai-mode-btn" style="width: 100%; justify-content: center; background: rgba(248, 113, 113, 0.1); color: #f87171; border: 1px solid rgba(248, 113, 113, 0.2);">
+                    Logout
+                </button>
+            </div>
+
+            <div class="account-content">
+
+                <div class="account-section">
+                    <div class="section-header"><span class="section-title">Personal Information</span></div>
+                    <div class="form-grid">
+                        <div class="form-group"><label>Username</label><input type="text" class="form-input" id="info-username" disabled></div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <div style="display: flex; gap: 10px;">
+                                <input type="email" class="form-input" id="info-email" disabled>
+                                <button type="button" id="edit-email-btn" class="ai-mode-btn" style="padding: 0 20px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2);">Change</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="email-otp-section" style="display: none; margin-top: 15px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.05);" class="slide-down">
+                        <p style="color: var(--text-main); font-weight: 600; font-size: 1rem; margin-bottom: 5px;">Verification Required</p>
+                        <p style="color: var(--text-muted); font-size: 0.9rem;">Enter the 4-digit code sent to your new email address.</p>
+
+                        <div class="otp-container">
+                            <input type="text" class="otp-box" maxlength="1" oninput="moveFocus(this, 'e-otp2')" id="e-otp1">
+                            <input type="text" class="otp-box" maxlength="1" oninput="moveFocus(this, 'e-otp3')" id="e-otp2">
+                            <input type="text" class="otp-box" maxlength="1" oninput="moveFocus(this, 'e-otp4')" id="e-otp3">
+                            <input type="text" class="otp-box" maxlength="1" oninput="moveFocus(this, 'verify-email-btn')" id="e-otp4">
+                        </div>
+
+                        <div style="display: flex; gap: 10px;">
+                            <button id="verify-email-btn" class="ai-mode-btn" style="background: var(--accent-purple); border: none; padding: 10px 24px;" type="button">Verify & Update</button>
+                            <button id="cancel-email-btn" class="ai-mode-btn" style="background: transparent; color: var(--text-muted); border: 1px solid rgba(255,255,255,0.2); padding: 10px 24px;" type="button">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="account-section">
+                    <div class="section-header"><span class="section-title">Security</span></div>
+                    <form id="password-form">
+                        <div class="form-grid">
+                            <div class="form-group"><label>Current Password</label><input type="password" id="old-pass" class="form-input" placeholder="••••••••" required></div>
+                            <div class="form-group"><label>New Password</label><input type="password" id="new-pass" class="form-input" placeholder="Min 8 chars" required></div>
+                        </div>
+                        <div style="text-align: right;"><button type="submit" class="ai-mode-btn" style="background: var(--accent-purple); border: none; padding: 10px 24px;">Update Password</button></div>
+                    </form>
+                </div>
+
+                <div class="account-section">
+                    <div class="section-header" style="border: none; margin-bottom: 10px;">
+                        <span class="section-title">My Watchlist</span>
+                        <a href="watchlist.html" style="color: var(--accent-gold); text-decoration: none; font-size: 0.9rem;">View All →</a>
+                    </div>
+                    <div class="watchlist-preview">
+                        <div>
+                            <h3 style="margin-bottom: 5px;">Tracked Stocks</h3>
+                            <p style="color: var(--text-muted); font-size: 0.9rem;">Manage your portfolio and track live prices.</p>
+                        </div>
+                        <div class="account-icon" style="background: rgba(255, 215, 0, 0.1); color: var(--accent-gold);">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 6l-9.5 9.5-5-5L1 18"></path></svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-wrapper">
+            <div class="footer-left">
+                <a href="dashboard.html" class="logo-link">
+                    <div class="logo"><img src="/static/images/logo.png" alt="Logo" class="logo-img"><span class="logo-text">TradeAlchemy</span></div>
+                </a>
+                <p class="footer-description">Semester 3 Project</p>
+            </div>
+            <div class="footer-right">
+                <div class="footer-col"><h4>Learn</h4><a href="stock_market.html">Stock Market</a><a href="ai_ml.html">AI ML</a></div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Store the original email to allow cancelling
+        let originalEmail = "";
+        let newEmailToVerify = "";
+
+        // Auto-focus logic for OTP boxes
+        function moveFocus(current, nextFieldId) {
+            if (current.value.length >= 1) {
+                document.getElementById(nextFieldId).focus();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                const response = await fetch('/api/user_info');
+                const data = await response.json();
+                if (data.success) {
+                    originalEmail = data.user.email;
+                    document.getElementById('display-name').innerText = data.user.username;
+                    document.getElementById('display-email').innerText = data.user.email;
+                    document.getElementById('info-username').value = data.user.username;
+                    document.getElementById('info-email').value = data.user.email;
+                    const avatarUrl = `https://ui-avatars.com/api/?name=${data.user.username}&background=A855F7&color=fff`;
+                    document.querySelector('.profile-avatar-large').src = '/account.jpg';
+                    document.querySelector('.profile-avatar-large').onerror = function() { this.src = avatarUrl; };
+                }
+            } catch (error) { console.error('Failed to load user info', error); }
+        });
+
+        // --- EMAIL CHANGE LOGIC ---
+        const editBtn = document.getElementById('edit-email-btn');
+        const emailInput = document.getElementById('info-email');
+        const otpSection = document.getElementById('email-otp-section');
+        const verifyBtn = document.getElementById('verify-email-btn');
+        const cancelBtn = document.getElementById('cancel-email-btn');
+
+        // Toggle Edit Mode -> Send Code
+        editBtn.addEventListener('click', async () => {
+            if (editBtn.innerText === "Change") {
+                // Unlock input
+                emailInput.disabled = false;
+                emailInput.focus();
+                editBtn.innerText = "Send Code";
+                editBtn.style.background = "var(--accent-purple)";
+                editBtn.style.border = "none";
+            }
+            else if (editBtn.innerText === "Send Code") {
+                const requestedEmail = emailInput.value.trim();
+
+                if (requestedEmail === originalEmail) {
+                    alert("This is already your current email address.");
+                    return;
+                }
+
+                if (!requestedEmail.includes('@') || !requestedEmail.includes('.')) {
+                    alert("Please enter a valid email address.");
+                    return;
+                }
+
+                editBtn.innerText = "Sending...";
+                editBtn.disabled = true;
+
+                try {
+                    const response = await fetch('/api/request_email_change', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ new_email: requestedEmail })
+                    });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        newEmailToVerify = requestedEmail;
+                        emailInput.disabled = true;
+                        editBtn.innerText = "Code Sent";
+                        otpSection.style.display = 'block';
+                        document.getElementById('e-otp1').focus();
+                    } else {
+                        alert(result.message);
+                        editBtn.innerText = "Send Code";
+                        editBtn.disabled = false;
+                    }
+                } catch (error) {
+                    alert('Failed to connect to server.');
+                    editBtn.innerText = "Send Code";
+                    editBtn.disabled = false;
+                }
+            }
+        });
+
+        // Verify the Code
+        verifyBtn.addEventListener('click', async () => {
+            const otp = document.getElementById('e-otp1').value +
+                        document.getElementById('e-otp2').value +
+                        document.getElementById('e-otp3').value +
+                        document.getElementById('e-otp4').value;
+
+            if (otp.length < 4) {
+                alert("Please enter the full 4-digit code.");
+                return;
+            }
+
+            verifyBtn.innerText = "Verifying...";
+            verifyBtn.disabled = true;
+
+            try {
+                const response = await fetch('/api/verify_email_change', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ new_email: newEmailToVerify, otp: otp })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    alert(result.message);
+                    // Update UI successfully
+                    originalEmail = newEmailToVerify;
+                    document.getElementById('display-email').innerText = newEmailToVerify;
+
+                    // Reset UI State
+                    otpSection.style.display = 'none';
+                    editBtn.innerText = "Change";
+                    editBtn.style.background = "rgba(255,255,255,0.05)";
+                    editBtn.style.border = "1px solid rgba(255,255,255,0.2)";
+                    editBtn.disabled = false;
+
+                    // Clear OTP boxes
+                    document.querySelectorAll('.otp-box').forEach(box => box.value = '');
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                alert('Verification failed.');
+            } finally {
+                verifyBtn.innerText = "Verify & Update";
+                verifyBtn.disabled = false;
+            }
+        });
+
+        // Cancel the email change
+        cancelBtn.addEventListener('click', () => {
+            emailInput.value = originalEmail;
+            emailInput.disabled = true;
+            otpSection.style.display = 'none';
+            editBtn.innerText = "Change";
+            editBtn.style.background = "rgba(255,255,255,0.05)";
+            editBtn.style.border = "1px solid rgba(255,255,255,0.2)";
+            editBtn.disabled = false;
+            document.querySelectorAll('.otp-box').forEach(box => box.value = '');
+        });
+
+        // --- PASSWORD UPDATE & LOGOUT LOGIC ---
+        document.getElementById('password-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerText;
+            btn.innerText = "Updating..."; btn.disabled = true;
+            try {
+                const response = await fetch('/api/change_password', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ old_password: document.getElementById('old-pass').value, new_password: document.getElementById('new-pass').value })
+                });
+                const result = await response.json();
+                alert(result.message);
+                if (result.success) e.target.reset();
+            } catch (error) { alert('Failed to update password'); }
+            finally { btn.innerText = originalText; btn.disabled = false; }
+        });
+
+        document.getElementById('logout-btn').addEventListener('click', async () => {
+            try {
+                const response = await fetch('/api/logout', { method: 'POST', headers: { 'Content-Type': 'application/json' }});
+                const result = await response.json();
+                if (result.success) window.location.href = '/';
+            } catch (error) { console.error('Logout failed', error); }
+        });
+    </script>
+</body>
+</html>

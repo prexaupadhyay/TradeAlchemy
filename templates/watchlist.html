@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Watchlist | TradeAlchemy</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+    <style>
+        .watchlist-container { max-width: 1400px; margin: 0 auto; padding: 0 40px; }
+        .watchlist-header-section { display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px; background: rgba(255,255,255,0.03); padding: 30px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); }
+        .add-stock-form { display: flex; gap: 15px; }
+        .add-stock-input { background: #121212; border: 1px solid #333; padding: 12px 20px; border-radius: 10px; color: white; font-size: 1rem; font-family: var(--font-primary); width: 200px; text-transform: uppercase; }
+        .watchlist-table-wrapper { background: rgba(255,255,255,0.03); border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .watchlist-table { width: 100%; border-collapse: collapse; text-align: left; }
+        .watchlist-table th { background: rgba(0,0,0,0.3); padding: 25px 30px; color: var(--text-muted); font-weight: 600; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; }
+        .watchlist-table td { padding: 25px 30px; border-bottom: 1px solid rgba(255,255,255,0.05); vertical-align: middle; font-size: 1.1rem; }
+
+        .ticker-cell { font-weight: 700; color: var(--accent-purple); font-size: 1.2rem !important; }
+
+        /* New Link Style */
+        .ticker-link { color: inherit; text-decoration: none; transition: opacity 0.2s; }
+        .ticker-link:hover { opacity: 0.8; text-decoration: underline; }
+
+        .date-cell { color: var(--text-muted); font-size: 0.95rem !important; }
+        .trend-up { color: #22c55e; font-weight: 600; }
+        .trend-down { color: #ef4444; font-weight: 600; }
+        .chart-cell { width: 200px; height: 80px; padding: 5px 30px !important; }
+
+        /* Updated Delete Button */
+        .delete-btn { background: rgba(239, 68, 68, 0.1); color: #ef4444; border: none; padding: 12px; border-radius: 10px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; }
+        .delete-btn:hover { background: rgba(239, 68, 68, 0.2); transform: scale(1.05); }
+
+        .footer { padding: 40px 40px; background: #171717; border-top: 1px solid #333; flex-shrink: 0; margin-top: 50px; }
+        .footer-wrapper { display: flex; justify-content: space-between; align-items: flex-start; }
+        .footer-left { max-width: 300px; }
+        .footer-left .logo { gap: 8px; display: flex; align-items: center; font-weight: 700; font-size: 1.2rem; color: #fff; }
+        .footer-left .logo-img { width: 50px; height: 50px; margin: 0; padding: 0; }
+        .footer-description { color: var(--text-muted); font-size: 0.85rem; margin-top: 10px; }
+        .footer-right { display: flex; gap: 80px; }
+        .footer-col { display: flex; flex-direction: column; gap: 12px; }
+        .footer-col h4 { color: var(--text-main); font-size: 0.95rem; margin-bottom: 4px; font-weight: 600; }
+        .footer-col a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; transition: 0.2s; }
+        .footer-col a:hover { color: var(--accent-gold); }
+
+        /* CUSTOM TOOLTIP STYLES */
+        .apexcharts-tooltip { background: transparent !important; border: none !important; box-shadow: none !important; }
+        .custom-tooltip-box { padding: 10px 14px; border-radius: 8px; font-family: 'DM Sans', sans-serif; font-size: 0.85rem; backdrop-filter: blur(5px); pointer-events: none; z-index: 1000; min-width: 100px; }
+        .tooltip-theme-green { border: 1px solid #22c55e; background: rgba(34, 197, 94, 0.2); color: #ffffff; box-shadow: 0 4px 15px rgba(34, 197, 94, 0.2); }
+        .tooltip-theme-red { border: 1px solid #ef4444; background: rgba(239, 68, 68, 0.2); color: #ffffff; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2); }
+        .tooltip-date { font-weight: 600; font-size: 0.75rem; margin-bottom: 4px; color: rgba(255,255,255,0.7); text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 4px; }
+        .tooltip-value { font-weight: 700; font-size: 0.95rem; }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <a href="dashboard.html" class="logo-link">
+                <div class="logo"><img src="/static/images/logo.png" alt="Logo" class="logo-img"><span class="logo-text">TradeAlchemy</span></div>
+            </a>
+            <nav class="nav">
+                <a href="dashboard.html" class="nav-link">Home</a>
+                <a href="watchlist.html" class="nav-link active">Watchlist</a>
+            </nav>
+            <div class="header-actions">
+                <a href="account.html" class="account-link">
+                    <div class="account-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main" style="padding-top: 50px;">
+        <div class="watchlist-container">
+
+            <div class="watchlist-header-section">
+                <div>
+                    <h1 class="hero-title" style="font-size: 2.5rem; margin-bottom: 10px;">My Watchlist</h1>
+                    <p style="color: var(--text-muted); font-size: 1.1rem;">Real-time tracking and 1-month performance.</p>
+                </div>
+                <form id="add-stock-form" class="add-stock-form">
+                    <input type="text" id="new-ticker" class="add-stock-input" placeholder="Ticker (e.g. AAPL)" required>
+                    <button type="submit" class="ai-mode-btn" style="background: var(--accent-purple); border: none; padding: 12px 30px; font-size: 1rem;">
+                        + Add Stock
+                    </button>
+                </form>
+            </div>
+
+            <div class="watchlist-table-wrapper">
+                <table class="watchlist-table">
+                    <thead>
+                        <tr>
+                            <th>Ticker</th>
+                            <th>Added On</th>
+                            <th>Price</th>
+                            <th>24h Change</th>
+                            <th>1-Month Trend</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="watchlist-body">
+                         <tr><td colspan="6" style="text-align: center; padding: 60px; color: var(--text-muted);">Loading market data...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-wrapper">
+            <div class="footer-left">
+                <a href="dashboard.html" class="logo-link">
+                    <div class="logo">
+                        <img src="/static/images/logo.png" alt="Logo" class="logo-img">
+                        <span class="logo-text">TradeAlchemy</span>
+                    </div>
+                </a>
+                <p class="footer-description">Semester 3 Project</p>
+            </div>
+
+            <div class="footer-right">
+                <div class="footer-col">
+                    <h4>Learn</h4>
+                    <a href="stock_market.html">Stock Market</a>
+                    <a href="ai_ml.html">AI ML</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
+        }
+
+        // Helper to fake dates for sparklines (since backend only provides price array)
+        function getHistoricalDate(offsetFromEnd, totalPoints) {
+            // Assume the last point is "Today" and we have daily data
+            const today = new Date();
+            const daysToSubtract = totalPoints - 1 - offsetFromEnd;
+            const pastDate = new Date(today);
+            pastDate.setDate(today.getDate() - daysToSubtract);
+            // Skip weekends calculation is complex without moment.js, so this is an approximation
+            return pastDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        }
+
+        function renderChart(elementId, data, color) {
+            const chartDiv = document.getElementById(elementId);
+            if (!chartDiv) return;
+            chartDiv.innerHTML = "";
+
+            if (!data || data.length < 2) {
+                chartDiv.innerHTML = "<span style='font-size:0.8rem; color:#555'>No Data</span>";
+                return;
+            }
+
+            const themeClass = (color === '#22c55e') ? 'tooltip-theme-green' : 'tooltip-theme-red';
+
+            try {
+                const options = {
+                    series: [{ data: data }],
+                    chart: { type: 'area', width: 160, height: 50, sparkline: { enabled: true }, animations: { enabled: true, speed: 400 } },
+                    stroke: { curve: 'smooth', width: 2 },
+                    fill: { type: 'gradient', gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.0, stops: [0, 100] } },
+                    colors: [color],
+                    tooltip: {
+                        enabled: true,
+                        fixed: { enabled: false },
+                        x: { show: false },
+                        y: { title: { formatter: () => '' } },
+                        marker: { show: false },
+                        followCursor: true,
+                        custom: function({ series, seriesIndex, dataPointIndex, w }) {
+                            // Get the raw price number
+                            const price = w.globals.series[seriesIndex][dataPointIndex];
+
+                            // Calculate approximate date based on index
+                            const totalPoints = w.globals.series[seriesIndex].length;
+                            const dateStr = getHistoricalDate(dataPointIndex, totalPoints);
+
+                            // Returns a simplified single-line format: Date : Price (No Currency Symbol)
+                            return `
+                                <div class="custom-tooltip-box ${themeClass}" style="padding: 8px 12px; font-weight: 700; font-size: 0.95rem; text-align: center;">
+                                    ${dateStr} : ${parseFloat(price).toFixed(2)}
+                                </div>
+                            `;
+                        }
+                    }
+                };
+                new ApexCharts(chartDiv, options).render();
+            } catch (error) {
+                chartDiv.innerHTML = "<span style='font-size:0.8rem; color:#ef4444'>Chart Error</span>";
+            }
+        }
+
+        async function loadWatchlist() {
+            const tbody = document.getElementById('watchlist-body');
+            try {
+                const response = await fetch('/api/watchlist');
+                const result = await response.json();
+
+                if (result.success && result.data.length > 0) {
+                    tbody.innerHTML = '';
+                    result.data.forEach((stock, index) => {
+                        const row = document.createElement('tr');
+                        const isUp = stock.change_percent >= 0;
+                        const trendClass = isUp ? 'trend-up' : 'trend-down';
+                        const chartColor = isUp ? '#22c55e' : '#ef4444';
+                        const chartId = `chart-${stock.ticker}-${index}`;
+
+                        row.innerHTML = `
+                            <td class="ticker-cell">
+                                <a href="search.html?q=${stock.ticker}" class="ticker-link">${stock.ticker}</a>
+                            </td>
+                            <td class="date-cell">${formatDate(stock.added_at)}</td>
+                            <td style="font-weight: 600;">${stock.current_price}</td>
+                            <td class="${trendClass}" style="font-weight: 500;">${isUp ? '+' : ''}${stock.change_percent}%</td>
+                            <td class="chart-cell"><div id="${chartId}"></div></td>
+                            <td>
+                                <button type="button"
+                                        class="delete-btn"
+                                        data-ticker="${stock.ticker}"
+                                        onclick="removeStock(this.getAttribute('data-ticker'))">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                                </button>
+                            </td>
+                        `;
+                        tbody.appendChild(row);
+
+                        if (stock.sparkline_data && stock.sparkline_data.length > 0) {
+                            requestAnimationFrame(() => { setTimeout(() => { renderChart(chartId, stock.sparkline_data, chartColor); }, 200); });
+                        }
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 80px; font-size: 1.2rem;">Your watchlist is empty. Add a ticker above!</td></tr>';
+                }
+            } catch (error) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: #ef4444; padding: 60px;">Failed to load market data. Please refresh the page.</td></tr>';
+            }
+        }
+
+        document.getElementById('add-stock-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const tickerInput = document.getElementById('new-ticker');
+            const ticker = tickerInput.value.toUpperCase().trim();
+            const btn = e.target.querySelector('button');
+            const originalText = btn.innerText;
+
+            if (!ticker || ticker.length === 0) return;
+
+            btn.disabled = true;
+            btn.innerText = 'Adding...';
+
+            try {
+                const response = await fetch('/api/watchlist/add', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ticker: ticker })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    tickerInput.value = '';
+                    window.location.reload();
+                } else {
+                    alert(result.message || 'Failed to add stock');
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                }
+            } catch (error) {
+                alert('Failed to add stock. Please try again.');
+                btn.disabled = false;
+                btn.innerText = originalText;
+            }
+        });
+
+        async function removeStock(ticker) {
+            if (!confirm(`Remove ${ticker} from your watchlist?`)) return;
+
+            try {
+                const response = await fetch('/api/watchlist/remove', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ticker: ticker })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    loadWatchlist();
+                } else {
+                    alert(result.message || 'Failed to remove stock');
+                }
+            } catch (error) {
+                alert('Failed to remove stock. Please try again.');
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadWatchlist();
+            setInterval(() => { loadWatchlist(); }, 15 * 60 * 1000);
+        });
+    </script>
+</body>
+</html>

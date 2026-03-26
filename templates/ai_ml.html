@@ -1,0 +1,108 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI & ML | TradeAlchemy</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .gradient-text {
+            background: linear-gradient(to right, #f87171, #fb923c, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        .main-content {
+            padding-top: 50px;
+            padding-bottom: 50px;
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-content">
+            <a href="dashboard.html" class="logo-link">
+                <div class="logo"><img src="/static/images/logo.png" alt="Logo" class="logo-img"><span class="logo-text">TradeAlchemy</span></div>
+            </a>
+            <nav class="nav">
+                <a href="dashboard.html" class="nav-link">Home</a>
+                <a href="watchlist.html" class="nav-link">Watchlist</a>
+            </nav>
+            <div class="header-actions">
+                <a href="account.html" class="account-link">
+                    <div class="account-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <section class="py-16 text-center px-6">
+            <h1 class="text-5xl font-extrabold text-white mb-6">Demystifying <span class="gradient-text">AI & ML</span> in Trading</h1>
+            <p class="text-gray-400 max-w-3xl mx-auto text-lg leading-relaxed">
+                The financial world generates millions of data points every second. Discover how Artificial Intelligence and Machine Learning turn this massive sea of information into broad, actionable insights.
+            </p>
+        </section>
+
+        <div class="max-w-5xl mx-auto px-6 pb-20 space-y-12">
+
+            <div class="glass-card p-8 rounded-2xl">
+                <h2 class="text-3xl font-semibold text-white mb-4">What is AI in the Stock Market?</h2>
+                <p class="text-gray-300 leading-relaxed mb-6">
+                    At its core, Artificial Intelligence in the stock market is about teaching computers to recognize patterns. Instead of relying purely on human intuition, AI systems analyze past market behaviors, news events, and broad economic indicators to understand how different factors might influence stock prices over time.
+                </p>
+                            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 items-stretch">
+                <div class="glass-card p-8 rounded-2xl flex flex-col justify-center">
+                    <h3 class="text-2xl font-semibold text-white mb-3 text-purple-400">The Power of Machine Learning</h3>
+                    <p class="text-gray-400 leading-relaxed">
+                        Machine Learning (ML) is a subset of AI that focuses on adaptation. ML algorithms don't just follow strict, pre-programmed rules; they learn from new data. As market conditions naturally shift, these models adjust their understanding to find hidden trends that traditional analysis might miss.
+                    </p>
+                </div>
+
+                <div class="glass-card p-8 rounded-2xl flex flex-col justify-center">
+                    <h3 class="text-2xl font-semibold text-white mb-3 text-orange-400">Analyzing Market Sentiment</h3>
+                    <p class="text-gray-400 leading-relaxed">
+                        Markets are heavily driven by human emotion. Modern AI doesn't just look at numbers—it evaluates text. By rapidly scanning news articles, social media trends, and financial reports, AI can help gauge the overall "mood" or sentiment surrounding a particular company or industry sector.
+                    </p>
+                </div>
+            </div>
+
+            <div class="glass-card p-8 rounded-2xl">
+                <h2 class="text-3xl font-semibold text-white mb-4">Algorithmic Trading & The Future</h2>
+                <p class="text-gray-300 leading-relaxed">
+                    When broad AI insights are combined with automated systems, the result is Algorithmic Trading. These programs can execute trades based on established parameters the moment a specific pattern is detected. While no technology can predict the future with absolute certainty, AI and ML serve as powerful tools to help traders navigate the complexity of the global market.
+                </p>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-wrapper">
+            <div class="footer-left">
+                <a href="dashboard.html" class="logo-link">
+                    <div class="logo"><img src="/static/images/logo.png" alt="Logo" class="logo-img"><span class="logo-text">TradeAlchemy</span></div>
+                </a>
+                <p class="footer-description">Semester 3 Project</p>
+            </div>
+            <div class="footer-right">
+                <div class="footer-col"><h4>Learn</h4><a href="stock_market.html">Stock Market</a><a href="ai_ml.html">AI ML</a></div>
+            </div>
+        </div>
+    </footer>
+
+</body>
+</html>

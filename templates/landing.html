@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome | TradeAlchemy</title>
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Resize Auth Container */
+        .auth-container {
+            width: 1000px;
+            height: 600px;
+            max-width: 95vw;
+            max-height: 95vh;
+        }
+
+        /* Styles for the 4-Box OTP Input */
+        .otp-container {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .otp-box {<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome | TradeAlchemy</title>
+    <link rel="stylesheet" href="../static/css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Resize Auth Container */
+        .auth-container {
+            width: 1000px;
+            height: 600px;
+            max-width: 95vw;
+            max-height: 95vh;
+        }
+
+        /* Styles for the 4-Box OTP Input */
+        .otp-container {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+
+        .otp-box {
+            width: 50px;
+            height: 55px;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 8px;
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .otp-box:focus {
+            border-color: var(--accent-purple);
+            background: #222;
+            outline: none;
+            box-shadow: 0 0 10px rgba(168, 85, 247, 0.2);
+        }
+
+        /* Animation to slide down the OTP section */
+        .slide-down {
+            animation: slideDown 0.4s ease forwards;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="landing-body">
+    <div class="auth-container">
+        <div class="auth-left">
+            <div class="auth-brand-content">
+                <img src="../static/images/logo.png" alt="TradeAlchemy Logo" class="auth-logo">
+                <h1 class="hero-title" style="font-size: 3.5rem;">Trade<span class="title-gradient">Alchemy</span></h1>
+                <p class="hero-tagline" style="margin-top: 15px; max-width: 400px; font-size: 1.1rem;">Transmuting raw data into market wealth with intelligent analysis.</p>
+            </div>
+            <div class="glow-circle"></div>
+        </div>
+
+        <div class="auth-right">
+            <div class="auth-toggle" id="auth-toggle-box">
+                <button class="toggle-btn active" onclick="showForm('login')">Login</button>
+                <button class="toggle-btn" onclick="showForm('signup')">Sign Up</button>
+            </div>
+
+            <form id="login-form" class="auth-form active">
+                <h2>Welcome Back</h2>
+                <p class="auth-subtitle">Enter your credentials to access your dashboard.</p>
+
+                <div class="input-group">
+                    <label>Email or Username</label>
+                    <input type="text" id="login-input" placeholder="e.g. trader@example.com" required>
+                </div>
+
+                <div class="input-group">
+                    <label>Password</label>
+                    <input type="password" id="login-password" placeholder="••••••••" required>
+                </div>
+
+                <div class="form-footer" style="margin-bottom: 24px;"></div>
+                <button type="submit" class="submit-btn">Log In</button>
+            </form>
+
+            <form id="signup-form" class="auth-form">
+                <div id="signup-inputs">
+                    <h2>Create Account</h2>
+                    <p class="auth-subtitle">Start your journey to smarter trading today.</p>
+
+                    <div class="input-group">
+                        <label>Username</label>
+                        <input type="text" id="signup-username" placeholder="trader123" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Email Address</label>
+                        <input type="email" id="signup-email" placeholder="john@example.com" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label>Password</label>
+                        <input type="password" id="signup-password" placeholder="Create a strong password" required>
+                    </div>
+                </div>
+
+                <div id="otp-section" style="display: none;" class="slide-down">
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-top: 10px;">
+                        Enter the 4-digit code sent to your email:
+                    </p>
+                    <div class="otp-container">
+                        <input type="text" class="otp-box" maxlength="1" oninput="moveFocus(this, 'otp2')" id="otp1">
+                        <input type="text" class="otp-box" maxlength="1" oninput="moveFocus(this, 'otp3')" id="otp2">
+                        <input type="text" class="otp-box" maxlength="1" oninput="moveFocus(this, 'otp4')" id="otp3">
+                        <input type="text" class="otp-box" maxlength="1" oninput="moveFocus(this, 'submit-signup-btn')" id="otp4">
+                    </div>
+                </div>
+
+                <button type="submit" id="submit-signup-btn" class="submit-btn">Create Account</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        let isVerificationMode = false;
+        let currentEmail = "";
+
+        function showForm(type) {
+            document.querySelectorAll('.toggle-btn').forEach(btn => btn.classList.remove('active'));
+            // Set button active based on type
+            const buttons = document.querySelectorAll('.toggle-btn');
+            if(type === 'login') buttons[0].classList.add('active');
+            else buttons[1].classList.add('active');
+
+            document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
+            document.getElementById(type + '-form').classList.add('active');
+        }
+
+        // Auto-focus logic for OTP boxes
+        function moveFocus(current, nextFieldId) {
+            if (current.value.length >= 1) {
+                if (nextFieldId === 'submit-signup-btn') {
+                    document.getElementById('submit-signup-btn').focus();
+                } else {
+                    document.getElementById(nextFieldId).focus();
+                }
+            }
+        }
+
+        // Login Logic
+        document.getElementById('login-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = this.querySelector('button');
+            const originalText = btn.innerText;
+            btn.innerText = "Authenticating...";
+            btn.disabled = true;
+
+            const loginInput = document.getElementById('login-input').value;
+            const password = document.getElementById('login-password').value;
+
+            try {
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ login: loginInput, password: password })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    window.location.href = '/dashboard';
+                } else {
+                    alert(result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Connection failed.');
+            } finally {
+                btn.innerText = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        // Sign Up Logic (Two Steps)
+        document.getElementById('signup-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('submit-signup-btn');
+
+            // STEP 2: VERIFICATION
+            if (isVerificationMode) {
+                const otp = document.getElementById('otp1').value +
+                            document.getElementById('otp2').value +
+                            document.getElementById('otp3').value +
+                            document.getElementById('otp4').value;
+
+                if (otp.length < 4) {
+                    alert("Please enter the full 4-digit code.");
+                    return;
+                }
+
+                btn.innerText = "Verifying...";
+                btn.disabled = true;
+
+                try {
+                    const response = await fetch('/api/verify', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ email: currentEmail, otp: otp })
+                    });
+                    const result = await response.json();
+
+                    if (result.success) {
+                        alert("Account Verified! Logging you in...");
+                        window.location.href = '/dashboard';
+                    } else {
+                        alert(result.message);
+                        btn.innerText = "Verify & Access";
+                        btn.disabled = false;
+                    }
+                } catch (error) {
+                    alert('Verification failed.');
+                }
+                return;
+            }
+
+            // STEP 1: CREATE ACCOUNT
+            btn.innerText = "Creating Account...";
+            btn.disabled = true;
+
+            const username = document.getElementById('signup-username').value;
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+
+            try {
+                const response = await fetch('/api/signup', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    // Switch to Verification Mode
+                    isVerificationMode = true;
+                    currentEmail = email;
+
+                    // Freeze inputs
+                    document.getElementById('signup-username').disabled = true;
+                    document.getElementById('signup-email').disabled = true;
+                    document.getElementById('signup-password').disabled = true;
+
+                    // Show OTP section
+                    document.getElementById('otp-section').style.display = 'block';
+
+                    // Update Button
+                    btn.innerText = "Verify & Access";
+                    btn.disabled = false;
+                    btn.style.background = "var(--accent-purple)"; // Visual cue
+
+                    // Focus first OTP box
+                    document.getElementById('otp1').focus();
+
+                } else {
+                    alert(result.message);
+                    btn.innerText = "Create Account";
+                    btn.disabled = false;
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Signup failed.');
+                btn.innerText = "Create Account";
+                btn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>

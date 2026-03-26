@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Stock Analysis | TradeAlchemy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <style>
+        :root { --bg-dark: #0e0e0e; --bg-card: #161616; --border-color: #2a2a2a; --text-main: #ffffff; --text-muted: #a0a0a0; --success: #22c55e; --danger: #ef4444; --sidebar-width-left: 220px; --sidebar-width-right: 280px; --accent-purple: #A855F7; --accent-gold: #FFD700; --alchemy-gradient: linear-gradient(135deg, #FFD700 0%, #A855F7 100%); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-dark); color: var(--text-main); }
+        html { scroll-behavior: smooth; }
+        a { text-decoration: none; color: inherit; }
+        .header { background: rgba(10, 10, 10, 0.95); border-bottom: 1px solid var(--border-color); position: sticky; top: 0; z-index: 100; padding: 20px 40px; }
+        .header-content { width: 100%; display: flex; justify-content: space-between; align-items: center; }
+        .logo-link { text-decoration: none; color: inherit; display: flex; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 6px; font-weight: 700; font-size: 1.2rem; flex: 0 0 auto; }
+        .logo-img { width: 40px; height: 40px; object-fit: contain; margin: 0; padding: 0; }
+        .logo-text { background: var(--alchemy-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: -0.5px; }
+        .nav { display: flex; gap: 50px; position: absolute; left: 50%; transform: translateX(-50%); }
+        .nav-link { color: var(--text-muted); text-decoration: none; font-size: 1.1rem; font-weight: 500; transition: 0.3s; }
+        .nav-link:hover, .nav-link.active { color: var(--text-main); }
+        .header-actions { flex: 0 0 auto; }
+        .account-link { text-decoration: none; color: inherit; }
+        .account-icon { width: 42px; height: 42px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s ease; color: var(--text-muted); }
+        .account-icon svg { width: 24px; height: 24px; }
+        .account-icon:hover { background: rgba(255, 255, 255, 0.2); color: var(--text-main); }
+        .main-container { width: 100%; max-width: none; margin: 0; padding: 20px 40px; display: grid; grid-template-columns: var(--sidebar-width-left) 1fr var(--sidebar-width-right); gap: 25px; align-items: start; }
+        .stock-header-section { grid-column: 1 / -1; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 25px 30px; display: flex; flex-direction: column; gap: 15px; }
+        .header-title-row { display: flex; align-items: baseline; gap: 12px; }
+        .header-name { font-size: 2rem; font-weight: 700; color: white; letter-spacing: -0.5px; }
+        .header-symbol { font-size: 1.5rem; color: var(--text-muted); font-weight: 600; }
+        .header-price-row { display: flex; align-items: baseline; gap: 15px; }
+        .header-price { font-size: 2.8rem; font-weight: 800; line-height: 1; letter-spacing: -1px; }
+        .header-change { font-size: 1.4rem; font-weight: 600; }
+        .sidebar { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 20px; position: sticky; top: 100px; max-height: calc(100vh - 120px); overflow-y: auto; }
+        .info-row { margin-bottom: 18px; }
+        .info-label { display: block; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); margin-bottom: 5px; font-weight: 600; }
+        .info-value { font-size: 0.95rem; font-weight: 500; line-height: 1.4; color: #e0e0e0; }
+        .desc-box { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; max-height: 400px; overflow-y: auto; margin-top: 15px; padding-top: 15px; border-top: 1px solid var(--border-color); scrollbar-width: none; }
+        .desc-box::-webkit-scrollbar { display: none; }
+        .middle-column { display: flex; flex-direction: column; gap: 25px; }
+        .content-card { background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 8px; padding: 25px; scroll-margin-top: 110px; }
+        .chart-header-row { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 15px; margin-bottom: 15px; }
+        .hover-legend { font-family: monospace; font-size: 0.9rem; color: var(--text-muted); min-height: 20px; }
+        .chart-controls button { background: transparent; border: none; color: var(--text-muted); padding: 4px 10px; font-size: 0.85rem; font-weight: 600; cursor: pointer; margin-left: 4px; border-bottom: 2px solid transparent; border-radius: 0; }
+        .chart-controls button:hover { color: var(--text-main); }
+        .chart-controls button.active { color: white; border-bottom-color: white; background: transparent; }
+        .section-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 20px; color: var(--text-main); border-left: 3px solid #666; padding-left: 10px; }
+        .data-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+        .data-item { border-bottom: 1px solid #222; padding-bottom: 8px; }
+        .data-label { display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 4px; }
+        .data-value { font-size: 0.95rem; font-weight: 600; color: #e0e0e0; }
+        .nav-list li { list-style: none; margin-bottom: 2px; }
+        .nav-anchor { display: block; padding: 10px 15px; color: var(--text-muted); font-size: 0.95rem; border-left: 2px solid transparent; transition: 0.2s; font-weight: 500; }
+        .nav-anchor:hover, .nav-anchor.active { color: white; border-left-color: white; background: rgba(255,255,255,0.03); }
+        .footer { padding: 40px 40px; background: #171717; border-top: 1px solid #333; flex-shrink: 0; margin-top: 50px; }
+        .footer-wrapper { display: flex; justify-content: space-between; align-items: flex-start; }
+        .footer-left { max-width: 300px; }
+        .footer-left .logo { gap: 8px; display: flex; align-items: center; font-weight: 700; font-size: 1.2rem; color: #fff; }
+        .footer-left .logo-img { width: 50px; height: 50px; margin: 0; padding: 0; }
+        .footer-description { color: var(--text-muted); font-size: 0.85rem; margin-top: 10px; }
+        .footer-right { display: flex; gap: 80px; }
+        .footer-col { display: flex; flex-direction: column; gap: 12px; }
+        .footer-col h4 { color: var(--text-main); font-size: 0.95rem; margin-bottom: 4px; font-weight: 600; }
+        .footer-col a { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; transition: 0.2s; }
+        .footer-col a:hover { color: var(--accent-gold); }
+        .text-green { color: var(--success); }
+        .text-red { color: var(--danger); }
+        #loading { position: fixed; inset: 0; background: var(--bg-dark); display: flex; justify-content: center; align-items: center; z-index: 999; font-size: 1.2rem; color: var(--text-muted); }
+
+        /* CUSTOM TOOLTIP STYLES */
+        .apexcharts-tooltip { background: transparent !important; border: none !important; box-shadow: none !important; }
+        .custom-tooltip-box { padding: 12px 16px; border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 0.85rem; backdrop-filter: blur(8px); pointer-events: none; z-index: 1000; }
+        .tooltip-theme-green { border: 1px solid #22c55e; background: rgba(34, 197, 94, 0.15); color: #ffffff; box-shadow: 0 4px 20px rgba(34, 197, 94, 0.2); }
+        .tooltip-theme-red { border: 1px solid #ef4444; background: rgba(239, 68, 68, 0.15); color: #ffffff; box-shadow: 0 4px 20px rgba(239, 68, 68, 0.2); }
+        .tooltip-row { display: flex; justify-content: space-between; gap: 20px; margin-bottom: 4px; }
+        .tooltip-label { color: rgba(255,255,255,0.6); font-weight: 500; font-size: 0.8rem; }
+        .tooltip-value { font-weight: 700; font-family: 'Inter', monospace; }
+        .tooltip-date { border-bottom: 1px solid rgba(255,255,255,0.2); padding-bottom: 8px; margin-bottom: 8px; font-weight: 700; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 1px; color: rgba(255,255,255,0.9); }
+    </style>
+</head>
+<body>
+
+    <header class="header">
+        <div class="header-content">
+            <a href="dashboard.html" class="logo-link">
+                <div class="logo">
+                    <img src="/static/images/logo.png" alt="TradeAlchemy Logo" class="logo-img">
+                    <span class="logo-text">TradeAlchemy</span>
+                </div>
+            </a>
+            <nav class="nav">
+                <a href="dashboard.html" class="nav-link active">Home</a>
+                <a href="watchlist.html" class="nav-link">Watchlist</a>
+            </nav>
+            <div class="header-actions">
+                <a href="account.html" class="account-link">
+                    <div class="account-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <div id="loading">Fetching Market Intelligence...</div>
+
+    <div id="main-content" style="display: none;">
+        <div class="main-container">
+            <div class="stock-header-section">
+                <div class="header-title-row">
+                    <span id="h-name" class="header-name">--</span>
+                    <span id="h-ticker" class="header-symbol">(--)</span>
+                </div>
+                <div class="header-price-row">
+                    <div id="h-price" class="header-price">--</div>
+                    <div id="h-change" class="header-change">--</div>
+                </div>
+            </div>
+
+            <aside class="sidebar">
+                <h4 style="margin-bottom: 15px; color: var(--text-muted); font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px;">Quick Jump</h4>
+                <ul class="nav-list">
+                    <li><a href="#chart-section" class="nav-anchor active">Price Chart</a></li>
+                    <li><a href="#v7-section" class="nav-anchor">Market Snapshot</a></li>
+                    <li><a href="#v10-section" class="nav-anchor">Fundamentals</a></li>
+                </ul>
+            </aside>
+
+            <main class="middle-column">
+                <section id="chart-section" class="content-card">
+                    <div class="chart-header-row">
+                        <div id="chart-legend" class="hover-legend" style="opacity: 0;"></div> <div class="chart-controls">
+                            <button onclick="updateChart('5d', this)">5D</button>
+                            <button onclick="updateChart('1m', this)">1M</button>
+                            <button onclick="updateChart('6m', this)">6M</button>
+                            <button onclick="updateChart('1y', this)" class="active">1Y</button>
+                            <button onclick="updateChart('5y', this)">5Y</button>
+                            <button onclick="updateChart('max', this)">MAX</button>
+                            <span style="border-left: 1px solid #333; margin: 0 8px;"></span>
+                            <button onclick="setType('area', this)" class="active">Line</button>
+                            <button onclick="setType('candlestick', this)">Candle</button>
+                        </div>
+                    </div>
+                    <div id="mainChart" style="min-height: 450px;"></div>
+                </section>
+
+                <section id="v7-section" class="content-card">
+                    <h2 class="section-title">Market Snapshot</h2>
+                    <div class="data-grid" id="v7-grid"></div>
+                </section>
+
+                <section id="v10-section" class="content-card">
+                    <h2 class="section-title">Fundamentals & Financials</h2>
+                    <div class="data-grid" id="v10-grid"></div>
+                </section>
+            </main>
+
+            <aside class="sidebar">
+                <div class="info-row"><span class="info-label">Industry</span><div class="info-value" id="info-industry">-</div></div>
+                <div class="info-row"><span class="info-label">Sector</span><div class="info-value" id="info-sector">-</div></div>
+                <div class="info-row"><span class="info-label">Website</span><a id="info-website" href="#" target="_blank" class="info-value" style="color: #4a90e2">-</a></div>
+                <div class="desc-box" id="info-desc"></div>
+            </aside>
+        </div>
+    </div>
+
+    <footer class="footer">
+        <div class="footer-wrapper">
+            <div class="footer-left">
+                <a href="dashboard.html" class="logo-link">
+                    <div class="logo"><img src="/static/images/logo.png" alt="Logo" class="logo-img"><span class="logo-text">TradeAlchemy</span></div>
+                </a>
+                <p class="footer-description">Semester 3 Project</p>
+            </div>
+            <div class="footer-right">
+                <div class="footer-col"><h4>Learn</h4><a href="stock_market.html">Stock Market</a><a href="ai_ml.html">AI ML</a></div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        let fullChartData = [];
+        let chartInstance = null;
+        let currentType = 'area';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const ticker = urlParams.get('q');
+            if(ticker) fetchData(ticker);
+        });
+
+        async function fetchData(ticker) {
+            try {
+                const res = await fetch(`/api/search_data?ticker=${ticker}`);
+                const data = await res.json();
+                if(data.success) {
+                    renderUI(data.fundamentals, data.ticker);
+                    fullChartData = data.chart_data;
+                    initChart(filterData(fullChartData, '1y'));
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('main-content').style.display = 'block';
+                } else { document.getElementById('loading').innerHTML = `<span style="color:#ef4444">Error: ${data.message}</span>`; }
+            } catch(e) { document.getElementById('loading').innerHTML = `<span style="color:#ef4444">Data fetch failed (Check Console)</span>`; }
+        }
+
+        function renderUI(data, ticker) {
+            const v7 = data.v7 || {};
+            const v10 = data.v10 || {};
+            document.getElementById('h-name').innerText = v7.Name || ticker;
+            document.getElementById('h-ticker').innerText = `(${ticker})`;
+            const price = v7["Current Price"] || 0;
+            const change = price - (v7["Prev Close"] || price);
+            const pct = (change / (v7["Prev Close"] || 1)) * 100;
+            const pEl = document.getElementById('h-price');
+            const cEl = document.getElementById('h-change');
+            pEl.innerText = price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+            cEl.innerText = `${change > 0 ? '+' : ''}${change.toFixed(2)} (${pct.toFixed(2)}%)`;
+            const color = change >= 0 ? 'text-green' : 'text-red';
+            pEl.style.color = '#ffffff';
+            cEl.className = `header-change ${color}`;
+            setText('info-industry', v10.Industry);
+            setText('info-sector', v10.Sector);
+            document.getElementById('info-desc').innerText = v10.Description || "No description available.";
+            const web = document.getElementById('info-website');
+            web.innerText = v10.Website || '-';
+            web.href = v10.Website || '#';
+
+            const v7Div = document.getElementById('v7-grid');
+            v7Div.innerHTML = '';
+            const orderedKeys = [ "Open", "Prev Close", "Day High", "Day Low", "52W High", "52W Low", "50 Day Avg", "200 Day Avg", "Volume", "Avg Volume (10D)", "Avg Volume (3M)", "Market Cap", "Trailing PE", "Forward PE", "EPS (TTM)", "Price to Book" ];
+            orderedKeys.forEach(key => { if(v7[key] !== undefined) createGridItem(v7Div, key, v7[key]); });
+
+            const v10Div = document.getElementById('v10-grid');
+            v10Div.innerHTML = '';
+            for (const [key, value] of Object.entries(v10)) {
+                if (!['Description', 'Industry', 'Sector', 'Website', 'Recommendation', 'Target Mean Price'].includes(key)) createGridItem(v10Div, key, value);
+            }
+        }
+
+        function createGridItem(container, label, value) {
+            let displayVal = value;
+            if(value === null || value === undefined) displayVal = '-';
+            else if(typeof value === 'number') {
+                if(label.includes('Cap') || label.includes('Volume') || label.includes('Cash') || label.includes('Debt')) displayVal = formatCompact(value);
+                else if (label.includes('Margin') || label.includes('Growth') || label.includes('Return') || label.includes('Ratio')) displayVal = (value < 5.0) ? (value * 100).toFixed(2) + '%' : value.toFixed(2) + '%';
+                else displayVal = value.toFixed(2);
+            }
+            const div = document.createElement('div');
+            div.className = 'data-item';
+            div.innerHTML = `<span class="data-label">${label}</span><span class="data-value">${displayVal}</span>`;
+            container.appendChild(div);
+        }
+
+        function initChart(data) {
+            if(chartInstance) chartInstance.destroy();
+            let chartColor = '#22c55e';
+            if(data.length > 0) {
+                const first = data[0].y[3] || data[0].y;
+                const last = data[data.length - 1].y[3] || data[data.length - 1].y;
+                if(last < first) chartColor = '#ef4444';
+            }
+
+            const options = {
+                series: [{ name: 'Price', data: formatData(data) }],
+                chart: { type: currentType, height: 450, background: 'transparent', toolbar: { show: false }, animations: { enabled: false } },
+                theme: { mode: 'dark' },
+                plotOptions: { candlestick: { colors: { upward: '#22c55e', downward: '#ef4444' }, wick: { useFillColor: true } } },
+                stroke: { width: currentType === 'candlestick' ? 1 : 2, curve: 'straight', colors: currentType === 'candlestick' ? ['#22c55e', '#ef4444'] : [chartColor] },
+                fill: { type: currentType === 'candlestick' ? 'solid' : 'gradient', opacity: currentType === 'candlestick' ? 1 : 0.4, gradient: { shadeIntensity: 1, opacityFrom: 0.4, opacityTo: 0.1, stops: [0, 100], colorStops: currentType === 'candlestick' ? [] : [ { offset: 0, color: chartColor, opacity: 0.4 }, { offset: 100, color: chartColor, opacity: 0.05 } ] } },
+                dataLabels: { enabled: false },
+                grid: { borderColor: '#222', xaxis: { lines: { show: false } } },
+                xaxis: { type: 'datetime', tooltip: { enabled: false }, axisBorder: { show: false }, axisTicks: { show: false }, labels: { style: { colors: '#666' } } },
+                yaxis: { show: false },
+                tooltip: {
+                    enabled: true,
+                    shared: false,
+                    followCursor: true,
+                    intersect: false,
+                    custom: function({series, seriesIndex, dataPointIndex, w}) {
+                        // Correctly extract the date from the X axis globals
+                        const dateVal = w.globals.seriesX[seriesIndex][dataPointIndex];
+                        const dateStr = new Date(dateVal).toLocaleDateString('en-US', { day:'numeric', month:'short', year:'numeric'});
+
+                        let html = '';
+
+                        if (currentType === 'candlestick') {
+                            // Correctly extract Candlestick data from globals
+                            const o = w.globals.seriesCandleO[seriesIndex][dataPointIndex];
+                            const h = w.globals.seriesCandleH[seriesIndex][dataPointIndex];
+                            const l = w.globals.seriesCandleL[seriesIndex][dataPointIndex];
+                            const c = w.globals.seriesCandleC[seriesIndex][dataPointIndex];
+
+                            const themeClass = (c >= o) ? 'tooltip-theme-green' : 'tooltip-theme-red';
+
+                            html = `<div class="custom-tooltip-box ${themeClass}">
+                                        <div class="tooltip-date">${dateStr}</div>
+                                        <div class="tooltip-row"><span class="tooltip-label">O</span><span class="tooltip-value">${o.toFixed(2)}</span></div>
+                                        <div class="tooltip-row"><span class="tooltip-label">H</span><span class="tooltip-value">${h.toFixed(2)}</span></div>
+                                        <div class="tooltip-row"><span class="tooltip-label">L</span><span class="tooltip-value">${l.toFixed(2)}</span></div>
+                                        <div class="tooltip-row"><span class="tooltip-label">C</span><span class="tooltip-value">${c.toFixed(2)}</span></div>
+                                    </div>`;
+                        } else {
+                            // Extract Line data from globals
+                            const val = w.globals.series[seriesIndex][dataPointIndex];
+                            const themeClass = (chartColor === '#22c55e') ? 'tooltip-theme-green' : 'tooltip-theme-red';
+
+                            html = `<div class="custom-tooltip-box ${themeClass}">
+                                        <div class="tooltip-date">${dateStr}</div>
+                                        <div class="tooltip-row"><span class="tooltip-label">Price</span><span class="tooltip-value">${val.toFixed(2)}</span></div>
+                                    </div>`;
+                        }
+                        return html;
+                    }
+                }
+            };
+            chartInstance = new ApexCharts(document.querySelector("#mainChart"), options);
+            chartInstance.render();
+        }
+
+        function formatData(data) { return data.map(d => ({ x: d.x, y: d.y })); }
+        function filterData(data, range) {
+            if (range === 'max') return data;
+            const now = new Date().getTime();
+            let days = 365;
+            if(range === '5d') days = 5; if(range === '1m') days = 30; if(range === '6m') days = 180; if(range === '5y') days = 1825;
+            const cutoff = now - (days * 24 * 60 * 60 * 1000);
+            return data.filter(d => d.x >= cutoff);
+        }
+        function updateChart(range, btn) {
+            btn.parentNode.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            initChart(filterData(fullChartData, range));
+        }
+        function setType(type, btn) {
+            currentType = type;
+            btn.parentNode.querySelectorAll('button').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const activeRangeBtn = document.querySelector('.chart-controls button.active');
+            let range = activeRangeBtn ? activeRangeBtn.innerText.toLowerCase() : '1y';
+            range = range === 'max' ? 'max' : range;
+            initChart(filterData(fullChartData, range));
+        }
+        function setText(id, val) { document.getElementById(id).innerText = val || '-'; }
+        function formatCompact(num) { return Intl.NumberFormat('en-US', { notation: "compact", maximumFractionDigits: 2 }).format(num); }
+
+        window.addEventListener('scroll', () => {
+            const sections = document.querySelectorAll('.content-card');
+            const navLinks = document.querySelectorAll('.nav-anchor');
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop;
+                if (scrollY >= sectionTop - 150) current = section.getAttribute('id');
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href').substring(1) === current) link.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
